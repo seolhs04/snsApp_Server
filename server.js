@@ -22,8 +22,19 @@ app.use(express.json());
 app.use(express.urlencoded( {extended : false} ))
 
 
-app.get('/data.json', function(req,res){
-  res.json({"result" : "hi"})
+app.get('/postData.json', function(req,res){
+  db.query('SELECT * FROM post LIMIT 10', function(err,result){
+    if(err) throw err;
+    res.json(result)
+  })
+})
+
+app.post('/create_process', function(req,res){
+  db.query(`INSERT INTO post (title,description,created) VALUES('${req.body.title}','${req.body.description}',NOW())`, function(err,result){
+    if(err) throw err;
+    
+    console.log('데이터 저장 성공!')
+  });
 })
 
 app.listen(PORT, function(){
