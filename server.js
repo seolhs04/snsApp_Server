@@ -23,7 +23,7 @@ app.use(express.urlencoded( {extended : false} ))
 
 
 app.get('/postData.json', function(req,res){
-  db.query('SELECT * FROM post LIMIT 10', function(err,result){
+  db.query('SELECT * FROM post', function(err,result){
     if(err) throw err;
     res.json(result)
   })
@@ -34,6 +34,25 @@ app.post('/create_process', function(req,res){
     if(err) throw err;
     
     console.log('데이터 저장 성공!')
+    res.redirect('/')
+  });
+})
+
+app.post('/update_process', function(req,res){
+  db.query(`UPDATE post SET title='${req.body.title}', description='${req.body.description}' WHERE id='${req.body.id}'`, function(err,result){
+    if(err) throw err;
+    
+    console.log('데이터 수정 성공!')
+    res.redirect('/')
+  });
+})
+
+app.post('/delete_process', function(req,res){
+  db.query(`DELETE FROM post WHERE id =${req.body.id}`, function(err,result){
+    if(err) throw err;
+    
+    console.log('데이터 삭제 성공!')
+    res.redirect('/')
   });
 })
 
