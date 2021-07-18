@@ -3,19 +3,6 @@ const app = express();
 const PORT = 5000;
 
 const path = require('path')
-const fs = require('fs');
-
-const multer = require('multer')
-const storage = multer.diskStorage({
-  destination: function(req, file, cb){
-    db(null, './public/images')
-  },
-  filename: function(req,file,cb){
-    cb(null, file.originalname)
-  }
-});
-var upload = multer({storage : storage})
-
 
 const mysql = require('mysql');
 require('dotenv').config();
@@ -27,6 +14,9 @@ const db = mysql.createConnection({
 });
 
 db.connect();
+
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
 
 app.use(express.static('public'));
 // app.use(express.static(path.join(__dirname + '/../client/build')))
@@ -43,14 +33,23 @@ app.get('/postData.json', function(req,res){
 })
 
 app.post('/create_process', function(req,res){
-  console.log(req.body)
-  // db.query(`INSERT INTO post (title,description,created) VALUES('${req.body.title}','${req.body.description}',NOW())`, function(err,result){
-  //   if(err) throw err;
-    
-  //   console.log('데이터 저장 성공!')
-  //   res.redirect('/')
-  // });
+  uploadFile = req.files.file
+  uploadFile.mv(`${__dirname}/public/images/${req.files.file.name}`, function(err){
+    if(err) console.log(err)
+
+    res.send('완료')
+  })
 })
+
+// app.post('/create_process', function(req,res){
+//   console.log(req.body)
+//   db.query(`INSERT INTO post (title,description,created) VALUES('${req.body.title}','${req.body.description}',NOW())`, function(err,result){
+//     if(err) throw err;
+    
+//     console.log('데이터 저장 성공!')
+//     res.redirect('/')
+//   });
+// })
 
 app.post('/update_process', function(req,res){
   db.query(`UPDATE post SET title='${req.body.title}', description='${req.body.description}' WHERE id='${req.body.id}'`, function(err,result){
