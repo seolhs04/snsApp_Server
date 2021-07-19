@@ -33,23 +33,18 @@ app.get('/postData.json', function(req,res){
 })
 
 app.post('/create_process', function(req,res){
-  uploadFile = req.files.file
-  uploadFile.mv(`${__dirname}/public/images/${req.files.file.name}`, function(err){
-    if(err) console.log(err)
-
-    res.send('완료')
-  })
-})
-
-// app.post('/create_process', function(req,res){
-//   console.log(req.body)
-//   db.query(`INSERT INTO post (title,description,created) VALUES('${req.body.title}','${req.body.description}',NOW())`, function(err,result){
-//     if(err) throw err;
+  db.query(`INSERT INTO post (title,description,created) VALUES('${req.body.title}','${req.body.description}',NOW())`, function(err,result){
+    if(err) throw err;
     
-//     console.log('데이터 저장 성공!')
-//     res.redirect('/')
-//   });
-// })
+    uploadImg = req.files.img
+    uploadImg.mv(`${__dirname}/public/images/${req.files.img.name}`, function(err){
+      if(err) console.log(err)
+
+      console.log('데이터 저장 성공!')
+      res.redirect('/')
+    })
+  });
+})
 
 app.post('/update_process', function(req,res){
   db.query(`UPDATE post SET title='${req.body.title}', description='${req.body.description}' WHERE id='${req.body.id}'`, function(err,result){
