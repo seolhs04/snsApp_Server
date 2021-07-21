@@ -64,6 +64,10 @@ app.post('/delete_process', function(req,res){
   });
 })
 
+app.get('/images/:img', function(req,res){
+  res.sendFile(path.join(__dirname + '/public/images/' + req.params.img))
+})
+
 app.listen(PORT, function(){
     console.log(`listening on port ${PORT}`)
 })
