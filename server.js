@@ -3,6 +3,7 @@ const app = express();
 const PORT = 5000;
 
 const path = require('path')
+const fs = require('fs')
 
 const mysql = require('mysql');
 require('dotenv').config();
@@ -17,6 +18,8 @@ db.connect();
 
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
+const compression = require('compression');
+app.use(compression());
 
 app.use(express.static('public'));
 // app.use(express.static(path.join(__dirname + '/../client/build')))
@@ -33,11 +36,11 @@ app.get('/postData.json', function(req,res){
 })
 
 app.post('/create_process', function(req,res){
-  db.query(`INSERT INTO post (title,description,created) VALUES('${req.body.title}','${req.body.description}',NOW())`, function(err,result){
+  db.query(`INSERT INTO post (title,description,created,image) VALUES('${req.body.title}','${req.body.description}',NOW(),'${req.body.imgName}')`, function(err,result){
     if(err) throw err;
     
     uploadImg = req.files.img
-    uploadImg.mv(`${__dirname}/public/images/${req.files.img.name}`, function(err){
+    uploadImg.mv(`${__dirname}/public/images/${req.body.imgName}`, function(err){
       if(err) console.log(err)
 
       console.log('데이터 저장 성공!')
@@ -56,11 +59,18 @@ app.post('/update_process', function(req,res){
 })
 
 app.post('/delete_process', function(req,res){
-  db.query(`DELETE FROM post WHERE id =${req.body.id}`, function(err,result){
+  db.query(`SELECT image FROM post WHERE id =${req.body.id}`, function(err,img){
     if(err) throw err;
-    
-    console.log('데이터 삭제 성공!')
-    res.redirect('/')
+
+    db.query(`DELETE FROM post WHERE id =${req.body.id}`, function(err,result){
+      if(err) throw err;
+      
+      fs.unlink(path.join(__dirname + '/public/images/' + img[0].image), (err)=>{
+        if(err) console.log(err)
+        console.log('데이터 삭제 성공!')
+        res.redirect('/')
+      })
+    });
   });
 })
 
